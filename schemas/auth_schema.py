@@ -38,4 +38,8 @@ class SignupReqBody(BaseModel):
     def strip_and_validate_name(cls, v: str) -> str:
         if not (v := v.strip()):
             raise ValueError("Full name cannot be empty")
-        return v
+        return v 
+    
+class LoginReqBody(BaseModel):
+    email:str
+    password:str
