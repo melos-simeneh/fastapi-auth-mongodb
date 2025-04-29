@@ -20,6 +20,8 @@ async def create_user(user: SignupReqBody):
     result = await mongo_connection.users_collection.insert_one(user_dict)
 
     return {
+        "success":True,
+        "message":"User created successfully",
         "user": {
             "_id": str(result.inserted_id),
             "full_name": user.full_name,
