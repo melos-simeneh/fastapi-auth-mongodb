@@ -5,6 +5,7 @@ from typing import Optional
 from utils.db import  mongo_connection
 from contextlib import asynccontextmanager
 from routes import auth_routes
+from slowapi.errors import RateLimitExceeded
 
 
 @asynccontextmanager
@@ -18,7 +19,12 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan, 
                 title="FastAPI Auth with MongoDB",
-                version="1.0.0", description="API Schema")
+                version="1.0.0", description="API Schema Documentation")
+
+
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
+    return format_error_response("Too many requests. Please try again later.",status_code=429)
 
 def format_error_response(message: str, errors: Optional[list] = None, status_code: int = 400):
     content = {
@@ -54,9 +60,9 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 
 @app.exception_handler(KeyError)
 async def key_error_handler(request: Request, exc: KeyError):
-    return format_error_response("Missing key in request", [{
+    return format_error_response("Missing key", [{
         "field": str(exc),
-        "message": "A required key was not found in the request"
+        "message": "A required key was not found"
     }])
 
 

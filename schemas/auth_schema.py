@@ -1,6 +1,6 @@
 from enum import Enum
 from pydantic import BaseModel, EmailStr, Field, field_validator
-from typing import Literal
+from typing import Literal,Optional
 
 class UserRole(str, Enum):
     USER = "user"
@@ -43,3 +43,11 @@ class SignupReqBody(BaseModel):
 class LoginReqBody(BaseModel):
     email:str
     password:str
+    
+class UpdateProfileReq(BaseModel):
+    full_name: Optional[str] = None
+    email: Optional[EmailStr] = None
+
+class ChangePasswordReq(BaseModel):
+    current_password: str
+    new_password: str
