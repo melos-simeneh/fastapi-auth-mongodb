@@ -8,11 +8,11 @@ class MongoDBConnection:
         self.db = None
         self.users_collection = None
 
-    async def connect(self):
+    async def connect(self,db_name):
         try:
             self.client = AsyncIOMotorClient(MONGO_URI)
             await self.client.admin.command('ping')
-            self.db = self.client["auth_db_3"]
+            self.db = self.client[db_name]
             self.users_collection = self.db["users"]
             print("✅ MongoDB connected")
             return True
