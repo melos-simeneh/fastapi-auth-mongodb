@@ -36,7 +36,6 @@ async def create_user(user: SignupReqBody):
 
 async def login_handler(data:LoginReqBody):
     user = await mongo_connection.users_collection.find_one({"email": data.email})
-    print(user)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     
