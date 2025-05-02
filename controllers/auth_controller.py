@@ -72,6 +72,7 @@ async def get_current_user(token=Depends(auth_scheme)):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
     
     return {
+                "_id":str(user["_id"]),
                 "email": user["email"],
                 "full_name": user["full_name"],
                 "role": user["role"]
@@ -83,13 +84,13 @@ async def update_user_profile(
     update_data: UpdateProfileReq,
     current_user: dict
 ):
-    if user_id != current_user.get("id"):
+    if user_id != current_user.get("_id"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Can only update your own profile"
         )
 
-    update_values = {k: v for k, v in update_data.dict().items() if v is not None}
+    update_values = {k: v for k, v in update_data.model_dump().items() if v is not None}
     
     if not update_values:
         raise HTTPException(
@@ -127,7 +128,7 @@ async def change_user_password(
     passwords: ChangePasswordReq,
     current_user: dict
 ):
-    if user_id != current_user.get("id"):
+    if user_id != current_user.get("_id"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Can only change your own password"
