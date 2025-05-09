@@ -7,6 +7,8 @@ from utils.settings import MONGO_TEST_DB_NAME,MONGO_DB_NAME
 from contextlib import asynccontextmanager
 from routes import auth_routes
 from slowapi.errors import RateLimitExceeded
+from utils import exception_handlers
+
 
 
 # ----------------- Lifespan ----------------- #
@@ -33,37 +35,11 @@ def format_error_response(message: str, errors: Optional[list] = None, status_co
 
 # ----------------- Register Handlers ----------------- #
 def register_exception_handlers(app: FastAPI):
-    @app.exception_handler(RateLimitExceeded)
-    async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
-        return format_error_response("Too many requests. Please try again later.", status_code=429)
+    app.add_exception_handler(RateLimitExceeded,exception_handlers.rate_limit_exceeded_handler)
+    app.add_exception_handler(RequestValidationError,exception_handlers.validation_exception_handler)
+    app.add_exception_handler(HTTPException,exception_handlers.http_exception_handler)
+    app.add_exception_handler(Exception,exception_handlers.general_exception_handler)
 
-    @app.exception_handler(RequestValidationError)
-    async def validation_exception_handler(request: Request, exc: RequestValidationError):
-        error_details = [
-            {
-                "field": ".".join(str(loc) for loc in err["loc"][1:]) or str(err["loc"][0]),
-                "message": err["msg"][13:] if err["msg"].startswith("Value error, ") else err["msg"],
-            }
-            for err in exc.errors()
-        ]
-        return format_error_response("Validation failed", error_details, 422)
-
-    @app.exception_handler(HTTPException)
-    async def http_exception_handler(request: Request, exc: HTTPException):
-        return format_error_response(str(exc.detail), status_code=exc.status_code)
-
-    @app.exception_handler(KeyError)
-    async def key_error_handler(request: Request, exc: KeyError):
-        return format_error_response("Missing key", [{
-            "field": str(exc),
-            "message": "A required key was not found"
-        }])
-
-    @app.exception_handler(Exception)
-    async def general_exception_handler(request: Request, exc: Exception):
-        return format_error_response("Internal server error", [{
-            "message": str(exc)
-        }], status_code=500)
 
 
 # ----------------- App Factory ----------------- #
