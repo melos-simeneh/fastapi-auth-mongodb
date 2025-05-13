@@ -22,9 +22,10 @@ A robust FastAPI project that implements secure, scalable user authentication an
 
 ## 📂 Project Structure
 
+```bash
 fastapi-auth-mongodb/
 ├── main.py
-├── `__tests__/`
+├── __tests__
 │ └── integration/
 │ └── unit/
 │ └── conftest.py
@@ -46,6 +47,7 @@ fastapi-auth-mongodb/
 ├── requirements.txt
 ├── pytest.ini
 └── README.md
+```
 
 ## 📦 Installation
 
